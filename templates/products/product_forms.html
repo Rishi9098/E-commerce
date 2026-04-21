@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Product - ShopHub{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'seller_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">{{ action }} Product</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0">
+                    {% if action == 'Add' %}
+                    <i class="bi bi-plus-circle"></i> Add New Product
+                    {% else %}
+                    <i class="bi bi-pencil-square"></i> Edit Product
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                            Product Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-semibold">
+                                Price ($) <span class="text-danger">*</span>
+                            </label>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                            <div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Must be greater than 0</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="{{ form.quantity.id_for_label }}" class="form-label fw-semibold">
+                                Quantity <span class="text-danger">*</span>
+                            </label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                            <div class="text-danger small mt-1">{{ form.quantity.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Must be 0 or more</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.image.id_for_label }}" class="form-label fw-semibold">
+                            Product Image <span class="text-muted">(optional)</span>
+                        </label>
+                        {% if product and product.image %}
+                        <div class="mb-2 d-flex align-items-center gap-3">
+                            <img src="{{ product.image.url }}" class="img-thumbnail"
+                                 style="max-height: 120px; max-width: 120px; object-fit: cover;">
+                            <div class="text-muted small">Current image. Upload a new one to replace.</div>
+                        </div>
+                        {% endif %}
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                        <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-dark btn-lg">
+                            <i class="bi bi-check-circle"></i> {{ action }} Product
+                        </button>
+                        <a href="{% url 'seller_dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

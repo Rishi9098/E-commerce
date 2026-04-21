@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Order - ShopHub{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-bag-check"></i> Confirm Your Order</h2>
+
+<div class="row g-4">
+    <!-- Order Items -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list-check"></i> Order Items</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Product</th>
+                            <th class="text-center">Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" class="rounded"
+                                         style="width:45px;height:45px;object-fit:cover;">
+                                    {% endif %}
+                                    <span class="fw-semibold">{{ item.product.name }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td>${{ item.price }}</td>
+                            <td class="fw-bold">${{ item.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-5 ps-3">Order Total:</td>
+                            <td class="fw-bold fs-5 text-success">${{ total }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Panel -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-shield-check"></i> Ready to Order?</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle"></i>
+                    By placing this order, stock will be reduced immediately and your cart will be cleared.
+                </p>
+                <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                    <span>Total:</span>
+                    <span class="text-success">${{ total }}</span>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        {% if stock_errors %}
+                        <button type="button" class="btn btn-success btn-lg" disabled>
+                            <i class="bi bi-exclamation-triangle"></i> Stock Issue — Fix Cart
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> Confirm &amp; Place Order
+                        </button>
+                        {% endif %}
+                        <a href="{% url 'cart_detail' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Cart
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // PDF: Order validation — show SweetAlert if stock errors exist
+    {% if stock_errors %}
+    Swal.fire({
+        icon: 'error',
+        title: 'Stock Problem!',
+        html: `<ul class="text-start ps-3">{% for err in stock_errors %}<li>{{ err }}</li>{% endfor %}</ul>`,
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'Fix Cart',
+    }).then(() => {
+        window.location.href = "{% url 'cart_detail' %}";
+    });
+    {% endif %}
+
+    // PDF: Order validation — show SweetAlert if stock changed at submit time
+    {% if order_errors %}
+    Swal.fire({
+        icon: 'warning',
+        title: 'Stock Changed!',
+        html: `<ul class="text-start ps-3">{% for err in order_errors %}<li>{{ err }}</li>{% endfor %}</ul>`,
+        confirmButtonColor: '#ffc107',
+        confirmButtonText: 'Review Cart',
+    }).then(() => {
+        window.location.href = "{% url 'cart_detail' %}";
+    });
+    {% endif %}
+</script>
+{% endblock %}
