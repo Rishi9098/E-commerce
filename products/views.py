@@ -26,6 +26,14 @@ def product_add(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product= form.save(commit=False)
+
+            if product.price <= 0:
+                messages.error(request, "Price must be greater than 0")
+                return render(request, 'products/product_forms.html',{
+                    'form': form,
+                    'action': 'Add'
+                })
+            
             product.seller = request.user
             product.save()
             messages.success(request, f'Product "{product.name}" added successfully!')
@@ -36,10 +44,19 @@ def product_add(request):
 
 @seller_requried
 def product_edit(request, pk):
-    product = get_object_or_404(product, pk=pk, seller=request.user)
+    product = get_object_or_404(Product, pk=pk, seller=request.user)
     if request.method =='POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
+            product = form.save(commit=False)
+
+            if product.price <= 0:
+                messages.error(request, "Price must be greater than 0")
+                return render(request, 'products/product_forms.html',{
+                    'form': form,
+                    'action': 'Edit',
+                    'product': product
+                })
             form.save()
             messages.success(request, f'Product "{product.name}" updated successfuly')
             return redirect('seller_dashboard')
@@ -49,10 +66,10 @@ def product_edit(request, pk):
 
 @seller_requried
 def product_delete(request, pk):
-    product = get_object_or_404(product, pk=pk, seller=request.user)
+    product = get_object_or_404(Product, pk=pk, seller=request.user)
     if request.method == 'POST':
         name = product.name
         product.delete()
         messages.success(request, f'Product "{name}" deleted successfully')
-        return redirect('seller_Dashboard')
+        return redirect('seller_dashboard')
     return render(request, 'products/product_confirm_delete.html', {'product': product})

@@ -4,7 +4,7 @@ from products.models import Product
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        {'pading', 'Pending'},
+        {'pending', 'Pending'},
         {'confirmed', 'Confirmed'},
         {'delivered', 'Delivered'},
     ]
@@ -27,7 +27,7 @@ class OrderItem(models.Model):
     price = models.DecimalField(max_digits=10 , decimal_places=2)
 
     def get_total(self):
-        return self.price * self.Quantity
+        return self.price * self.quantity
     
     def __str__(self):
         return f"{self.quantity}x {self.product_name}"
